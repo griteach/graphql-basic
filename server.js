@@ -12,7 +12,6 @@ const todayFormatDash = dayjs().format("YYYY-MM-DD");
 const currentHour = dayjs().get("hour") - 1;
 console.log(today);
 console.log(todayFormatDash);
-console.log(currentHour);
 
 const API_KEY =
   "l72zwz6RqrexXr8a4wslQsw%2Bx0zTGnE5R1sSf26aPRPOQytFjk3AkCOTfssOo1TQ8xQoimJbfkfYL6YZr%2FssIw%3D%3D";
@@ -21,15 +20,6 @@ const DUST_PATH_BASIC = "http://apis.data.go.kr/B552584/ArpltnInforInqireSvc";
 
 //측정소별 실시간 미세먼지 데이터
 const DUST_URL = "/getCtprvnRltmMesureDnsty";
-
-//인증 AccessToken 획득과정
-const SERVICE_ID = "cccf79b15a1a4ce99125";
-const SECURITY_KEY = "ee9976a4b7854fc1a3f9";
-const AUTH_BASIC_URL =
-  "https://sgisapi.kostat.go.kr/OpenAPI3/auth/authentication.json";
-const AUTH_URL = `${AUTH_BASIC_URL}?consumer_key=${SERVICE_ID}&consumer_secret=${SECURITY_KEY}`;
-
-const myApi = "13ec2b3e4522950e0caa7ab7c36ea7b5";
 
 let tweets = [
   {
@@ -103,6 +93,7 @@ const typeDefs = gql`
   }
 
   type Dust {
+    id: ID
     stationName: String
     dataTime: String
     pm10Grade: String
@@ -111,25 +102,12 @@ const typeDefs = gql`
     pm10Value24: String
   }
 
-  type Token {
-    id: String
-    result: TokenData
-    errMsg: String
-    trId: String
-  }
-
-  type TokenData {
-    accessTimeout: String
-    accessToken: String
-  }
-
   type Query {
     allUsers: [User!]!
     allTweets: [Tweet!]!
     tweet(id: ID!): Tweet
     allDusts: [Dust!]!
     dust(stationName: String!): Dust
-    accessToken: Token
   }
 
   type Mutation {
@@ -155,12 +133,7 @@ const resolvers = {
     allUsers() {
       return users;
     },
-    accessToken() {
-      return fetch(AUTH_URL).then((response) => {
-        console.log(response);
-        return response;
-      });
-    },
+
     allDusts() {
       return fetch(
         `${DUST_PATH_BASIC}${DUST_URL}?serviceKey=${API_KEY}&numOfRows=100&returnType=json&ver=1.3&sidoName=${encodeURIComponent(

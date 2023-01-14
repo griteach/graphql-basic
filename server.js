@@ -93,7 +93,7 @@ const typeDefs = gql`
   }
 
   type Dust {
-    id: ID
+    id: String
     stationName: String
     dataTime: String
     pm10Grade: String
@@ -106,8 +106,8 @@ const typeDefs = gql`
     allUsers: [User!]!
     allTweets: [Tweet!]!
     tweet(id: ID!): Tweet
-    allDusts: [Dust!]!
-    dust(stationName: String!): Dust
+    allDusts: [Dust]
+    dust(id: String!): Dust
   }
 
   type Mutation {
@@ -141,18 +141,28 @@ const resolvers = {
         )}`
       )
         .then((response) => response.json())
-        .then((r) => r.response.body.items);
+        .then((r) => r.response.body.items)
+        .then((result) =>
+          result.map((item, index) => ({ id: index + 1, ...item }))
+        );
     },
-    dust(_, { stationName }) {
+    dust(_, { id }) {
       return fetch(
         `${DUST_PATH_BASIC}${DUST_URL}?serviceKey=${API_KEY}&numOfRows=100&returnType=json&ver=1.3&sidoName=${encodeURIComponent(
           "강원"
         )}`
       )
         .then((response) => response.json())
-        .then((r) =>
-          r.response.body.items.find((item) => item.stationName === stationName)
-        );
+        .then((r) => r.response.body.items)
+        .then((result) =>
+          result.map((item, index) => ({ id: (index + 1).toString(), ...item }))
+        )
+        .then((r) => {
+          const result = r.find((item) => item.id === id);
+          console.log(typeof result.id);
+          console.log(result);
+          return result;
+        });
     },
   },
   Mutation: {

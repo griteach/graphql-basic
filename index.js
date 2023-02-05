@@ -1,5 +1,5 @@
 import { ApolloServer, gql } from "apollo-server";
-import dayjs from "dayjs";
+// import dayjs from "dayjs";
 
 //dotenv 사용법
 // 1) 임포트해준다. dotenv
@@ -100,8 +100,10 @@ const server = new ApolloServer({
   },
   typeDefs,
   resolvers,
+  introspection: true,
+  playground: true,
 });
 
 server.listen().then(({ url }) => {
-  console.log(`Runn ing on ${url}`);
+  console.log(`Running on ${url}`);
 });
